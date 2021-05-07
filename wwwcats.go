@@ -6,6 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+
+	"github.com/eyedeekay/sam3/helper"
+	"github.com/eyedeekay/sam3/i2pkeys"
 )
 
 var addr = flag.String("l", ":8080", "http service address")
@@ -28,8 +31,15 @@ func main() {
 	})
 
 	// Start the server
-	log.Println("Now listening on", *addr)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+
+	i2plistener, err := sam.I2PListener("wwwcats","127.0.0.1:7656","wwwcats")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println("Now listening on", "http://"+i2plistener.Addr().(i2pkeys.I2PAddr).Base32())
+	log.Fatal(http.Serve(i2plistener, nil))
 }
 
 var upgrader = websocket.Upgrader{
